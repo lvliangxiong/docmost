@@ -24,7 +24,7 @@ async function bootstrap() {
     },
   );
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', { exclude: ['share/:id']});
 
   const redisIoAdapter = new WsRedisIoAdapter(app);
   await redisIoAdapter.connectToRedis();

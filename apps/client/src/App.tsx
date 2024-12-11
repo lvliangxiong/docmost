@@ -62,6 +62,13 @@ export default function App() {
     <>
       <Routes>
         <Route index element={<Navigate to="/home" />} />
+        <Route path={"/share/:id"} element={
+          <ErrorBoundary
+            fallback={<>Failed to load home. An error occurred.</>}
+          >
+            <Home />
+          </ErrorBoundary>
+        }/>
         <Route path={"/login"} element={<LoginPage />} />
         <Route path={"/invites/:invitationId"} element={<InviteSignup />} />
         <Route path={"/setup/register"} element={<SetupWorkspace />} />
