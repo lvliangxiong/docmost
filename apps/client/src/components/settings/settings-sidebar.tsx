@@ -36,7 +36,7 @@ import { useSettingsNavigation } from "@/hooks/use-settings-navigation";
 
 interface DataItem {
   label: string;
-  icon: React.ElementType;
+  icon: any;
   path: string;
   isCloud?: boolean;
   isEnterprise?: boolean;

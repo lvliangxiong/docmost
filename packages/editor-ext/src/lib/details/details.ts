@@ -27,7 +27,7 @@ export const Details = Node.create<DetailsOptions>({
   content: "detailsSummary detailsContent",
   defining: true,
   isolating: true,
-  allowGapCursor: false,
+  //allowGapCursor: false,
   addOptions() {
     return {
       HTMLAttributes: {},

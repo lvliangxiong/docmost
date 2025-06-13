@@ -1,10 +1,10 @@
+import { Placeholder, History } from "@tiptap/extensions";
 import "@/features/editor/styles/index.css";
 import React, { useCallback, useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { Document } from "@tiptap/extension-document";
 import { Heading } from "@tiptap/extension-heading";
 import { Text } from "@tiptap/extension-text";
-import { Placeholder } from "@tiptap/extension-placeholder";
 import { useAtomValue } from "jotai";
 import {
   pageEditorAtom,
@@ -14,7 +14,6 @@ import { updatePageData, useUpdateTitlePageMutation } from "@/features/page/quer
 import { useDebouncedCallback } from "@mantine/hooks";
 import { useAtom } from "jotai";
 import { useQueryEmit } from "@/features/websocket/use-query-emit.ts";
-import { History } from "@tiptap/extension-history";
 import { buildPageUrl } from "@/features/page/page.utils.ts";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";

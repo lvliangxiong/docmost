@@ -1,9 +1,5 @@
-import {
-  BubbleMenu,
-  BubbleMenuProps,
-  isNodeSelection,
-  useEditor,
-} from "@tiptap/react";
+import { isNodeSelection, useEditor } from "@tiptap/react";
+import { BubbleMenu, BubbleMenuProps } from "@tiptap/react/menus";
 import { FC, useEffect, useRef, useState } from "react";
 import {
   IconBold,

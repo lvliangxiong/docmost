@@ -1,8 +1,5 @@
-import {
-  BubbleMenu as BaseBubbleMenu,
-  posToDOMRect,
-  findParentNode,
-} from "@tiptap/react";
+import { posToDOMRect, findParentNode } from "@tiptap/react";
+import { BubbleMenu as BaseBubbleMenu } from "@tiptap/react/menus";
 import { Node as PMNode } from "@tiptap/pm/model";
 import React, { useCallback } from "react";
 

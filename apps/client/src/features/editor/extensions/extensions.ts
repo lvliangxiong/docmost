@@ -1,20 +1,17 @@
-import { StarterKit } from "@tiptap/starter-kit";
-import { Placeholder } from "@tiptap/extension-placeholder";
+import { Table, TableHeader } from "@tiptap/extension-table";
+import { TextStyle, Color } from "@tiptap/extension-text-style";
+import { TaskList, TaskItem } from "@tiptap/extension-list";
+import { Placeholder, CharacterCount } from "@tiptap/extensions";
+import StarterKit from "@tiptap/starter-kit";
 import { TextAlign } from "@tiptap/extension-text-align";
-import { TaskList } from "@tiptap/extension-task-list";
-import { TaskItem } from "@tiptap/extension-task-item";
 import { Underline } from "@tiptap/extension-underline";
 import { Superscript } from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Typography } from "@tiptap/extension-typography";
-import { TextStyle } from "@tiptap/extension-text-style";
-import { Color } from "@tiptap/extension-color";
-import Table from "@tiptap/extension-table";
-import TableHeader from "@tiptap/extension-table-header";
 import SlashCommand from "@/features/editor/extensions/slash-command";
-import { Collaboration } from "@tiptap/extension-collaboration";
-import { CollaborationCursor } from "@tiptap/extension-collaboration-cursor";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import {
   Comment,
@@ -72,7 +69,6 @@ import MentionView from "@/features/editor/components/mention/mention-view.tsx";
 import i18n from "@/i18n.ts";
 import { MarkdownClipboard } from "@/features/editor/extensions/markdown-clipboard.ts";
 import EmojiCommand from "./emoji-command";
-import { CharacterCount } from "@tiptap/extension-character-count";
 
 const lowlight = createLowlight(common);
 lowlight.register("mermaid", plaintext);
@@ -88,7 +84,7 @@ lowlight.register("scala", scala);
 
 export const mainExtensions = [
   StarterKit.configure({
-    history: false,
+    undoRedo: false,
     dropcursor: {
       width: 3,
       color: "#70CFF8",
@@ -213,7 +209,7 @@ export const mainExtensions = [
   MarkdownClipboard.configure({
     transformPastedText: true,
   }),
-  CharacterCount
+  CharacterCount,
 ] as any;
 
 type CollabExtensions = (provider: HocuspocusProvider, user: IUser) => any[];
@@ -222,7 +218,7 @@ export const collabExtensions: CollabExtensions = (provider, user) => [
   Collaboration.configure({
     document: provider.document,
   }),
-  CollaborationCursor.configure({
+  CollaborationCaret.configure({
     provider,
     user: {
       name: user.name,

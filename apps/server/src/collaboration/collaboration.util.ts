@@ -1,17 +1,13 @@
-import { StarterKit } from '@tiptap/starter-kit';
+import { Table, TableHeader } from '@tiptap/extension-table';
+import { TextStyle, Color } from '@tiptap/extension-text-style';
+import { TaskList, TaskItem } from '@tiptap/extension-list';
 import { TextAlign } from '@tiptap/extension-text-align';
-import { TaskList } from '@tiptap/extension-task-list';
-import { TaskItem } from '@tiptap/extension-task-item';
 import { Underline } from '@tiptap/extension-underline';
 import { Superscript } from '@tiptap/extension-superscript';
 import SubScript from '@tiptap/extension-subscript';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Typography } from '@tiptap/extension-typography';
-import { TextStyle } from '@tiptap/extension-text-style';
-import { Color } from '@tiptap/extension-color';
 import { Youtube } from '@tiptap/extension-youtube';
-import Table from '@tiptap/extension-table';
-import TableHeader from '@tiptap/extension-table-header';
 import {
   Callout,
   Comment,
@@ -31,8 +27,9 @@ import {
   Drawio,
   Excalidraw,
   Embed,
-  Mention
+  Mention,
 } from '@docmost/editor-ext';
+import StarterKit from '@tiptap/starter-kit';
 import { generateText, getSchema, JSONContent } from '@tiptap/core';
 import { generateHTML } from '../common/helpers/prosemirror/html';
 // @tiptap/html library works best for generating prosemirror json state but not HTML
@@ -44,9 +41,10 @@ import { Node } from '@tiptap/pm/model';
 export const tiptapExtensions = [
   StarterKit.configure({
     codeBlock: false,
+    undoRedo: false,
   }),
   Comment,
-  TextAlign.configure({ types: ["heading", "paragraph"] }),
+  TextAlign.configure({ types: ['heading', 'paragraph'] }),
   TaskList,
   TaskItem,
   Underline,
@@ -76,7 +74,7 @@ export const tiptapExtensions = [
   Drawio,
   Excalidraw,
   Embed,
-  Mention
+  Mention,
 ] as any;
 
 export function jsonToHtml(tiptapJson: any) {

@@ -1,3 +1,4 @@
+import { Placeholder } from "@tiptap/extensions";
 import "@/features/editor/styles/index.css";
 import React, { useMemo } from "react";
 import { EditorProvider } from "@tiptap/react";
@@ -5,7 +6,6 @@ import { mainExtensions } from "@/features/editor/extensions/extensions";
 import { Document } from "@tiptap/extension-document";
 import { Heading } from "@tiptap/extension-heading";
 import { Text } from "@tiptap/extension-text";
-import { Placeholder } from "@tiptap/extension-placeholder";
 import { useAtom } from "jotai/index";
 import {
   pageEditorAtom,

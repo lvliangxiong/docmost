@@ -1,4 +1,4 @@
-import { BubbleMenu as BaseBubbleMenu } from "@tiptap/react";
+import { BubbleMenu as BaseBubbleMenu } from "@tiptap/react/menus";
 import React, { useCallback, useState } from "react";
 import { EditorMenuProps } from "@/features/editor/components/table/types/types.ts";
 import { LinkEditorPanel } from "@/features/editor/components/link/link-editor-panel.tsx";

@@ -102,8 +102,8 @@ export default function PageEditor({
       url: collaborationURL,
       document: ydoc,
       token: collabQuery?.token,
-      connect: false,
-      preserveConnection: false,
+      //connect: false,
+      // preserveConnection: false,
       onAuthenticationFailed: (auth: onAuthenticationFailedParameters) => {
         const payload = jwtDecode(collabQuery?.token);
         const now = Date.now().valueOf() / 1000;
@@ -112,11 +112,11 @@ export default function PageEditor({
           refetchCollabToken();
         }
       },
-      onStatus: (status) => {
-        if (status.status === "connected") {
-          setYjsConnectionStatus(status.status);
-        }
-      },
+      //   onStatus: (status) => {
+      //   if (status.status === "connected") {
+      //   setYjsConnectionStatus(status.status);
+      // }
+      //},
     });
 
     provider.on("synced", () => {

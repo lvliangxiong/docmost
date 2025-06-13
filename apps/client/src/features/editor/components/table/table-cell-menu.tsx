@@ -1,4 +1,4 @@
-import { BubbleMenu as BaseBubbleMenu } from "@tiptap/react";
+import { BubbleMenu as BaseBubbleMenu } from "@tiptap/react/menus";
 import React, { useCallback } from "react";
 
 import {
