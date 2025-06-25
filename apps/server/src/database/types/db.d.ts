@@ -266,6 +266,10 @@ export interface Users {
   timezone: string | null;
   updatedAt: Generated<Timestamp>;
   workspaceId: string | null;
+  is2faEnabled: boolean;
+  twofaSecret: string | null;
+  twofaMethod: string | null;
+  twofaBackupCodes: Json | null;
 }
 
 export interface UserTokens {

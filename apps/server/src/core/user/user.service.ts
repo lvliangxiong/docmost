@@ -88,6 +88,19 @@ export class UserService {
       user.locale = updateUserDto.locale;
     }
 
+    if (typeof updateUserDto.is2faEnabled !== 'undefined') {
+      user.is2faEnabled = updateUserDto.is2faEnabled;
+    }
+    if (typeof updateUserDto.twofaSecret !== 'undefined') {
+      user.twofaSecret = updateUserDto.twofaSecret;
+    }
+    if (typeof updateUserDto.twofaMethod !== 'undefined') {
+      user.twofaMethod = updateUserDto.twofaMethod;
+    }
+    if (typeof updateUserDto.twofaBackupCodes !== 'undefined') {
+      user.twofaBackupCodes = updateUserDto.twofaBackupCodes;
+    }
+
     delete updateUserDto.confirmPassword;
 
     await this.userRepo.updateUser(updateUserDto, userId, workspace.id);

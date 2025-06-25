@@ -22,25 +22,43 @@ import { PasswordResetDto } from './dto/password-reset.dto';
 import { VerifyUserTokenDto } from './dto/verify-user-token.dto';
 import { FastifyReply } from 'fastify';
 import { validateSsoEnforcement } from './auth.util';
+import { TwoFAVerifyDto } from '../../ee/2fa/dto/2fa.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
-    private environmentService: EnvironmentService,
+    private readonly authService: AuthService,
+    private readonly environmentService: EnvironmentService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(
-    @AuthWorkspace() workspace: Workspace,
     @Res({ passthrough: true }) res: FastifyReply,
-    @Body() loginInput: LoginDto,
+    @Body() loginDto: LoginDto,
   ) {
-    validateSsoEnforcement(workspace);
+    const { token, workspace } = await this.authService.login(
+      loginDto,
+      this.environmentService.getWorkspaceId(),
+    );
 
-    const authToken = await this.authService.login(loginInput, workspace.id);
-    this.setAuthCookie(res, authToken);
+    this.setAuthCookie(res, token);
+    return workspace;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('register')
+  async register(
+    @Res({ passthrough: true }) res: FastifyReply,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    const { token, workspace } = await this.authService.register(
+      createUserDto,
+      this.environmentService.getWorkspaceId(),
+    );
+
+    this.setAuthCookie(res, token);
+    return workspace;
   }
 
   @UseGuards(SetupGuard)
@@ -71,34 +89,36 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
   async forgotPassword(
-    @Body() forgotPasswordDto: ForgotPasswordDto,
+    @Body() dto: ForgotPasswordDto,
     @AuthWorkspace() workspace: Workspace,
   ) {
-    validateSsoEnforcement(workspace);
-    return this.authService.forgotPassword(forgotPasswordDto, workspace);
+    return this.authService.forgotPassword(dto, workspace);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('password-reset')
   async passwordReset(
     @Res({ passthrough: true }) res: FastifyReply,
-    @Body() passwordResetDto: PasswordResetDto,
-    @AuthWorkspace() workspace: Workspace,
+    @Body() dto: PasswordResetDto,
   ) {
-    const authToken = await this.authService.passwordReset(
-      passwordResetDto,
-      workspace.id,
+    const { token, workspace } = await this.authService.passwordReset(
+      dto,
+      this.environmentService.getWorkspaceId(),
     );
-    this.setAuthCookie(res, authToken);
+
+    this.setAuthCookie(res, token);
+    return workspace;
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('verify-token')
-  async verifyResetToken(
-    @Body() verifyUserTokenDto: VerifyUserTokenDto,
-    @AuthWorkspace() workspace: Workspace,
+  @Post('verify-user-token')
+  async verifyUserToken(
+    @Body() dto: VerifyUserTokenDto,
   ) {
-    return this.authService.verifyUserToken(verifyUserTokenDto, workspace.id);
+    return this.authService.verifyUserToken(
+      dto,
+      this.environmentService.getWorkspaceId(),
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -111,11 +131,20 @@ export class AuthController {
     return this.authService.getCollabToken(user.id, workspace.id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('logout')
-  async logout(@Res({ passthrough: true }) res: FastifyReply) {
-    res.clearCookie('authToken');
+  @Post('login-with-2fa')
+  async loginWith2FA(
+    @Res({ passthrough: true }) res: FastifyReply,
+    @Body() dto: { userId: string; twoFAToken: string },
+  ) {
+    const { token, workspace } = await this.authService.loginWith2FA(
+      dto.userId,
+      this.environmentService.getWorkspaceId(),
+      dto.twoFAToken,
+    );
+
+    this.setAuthCookie(res, token);
+    return workspace;
   }
 
   setAuthCookie(res: FastifyReply, token: string) {

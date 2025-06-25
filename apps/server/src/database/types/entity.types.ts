@@ -33,7 +33,12 @@ export type UpdatableWorkspaceInvitation = Updateable<
 >;
 
 // User
-export type User = Selectable<Users>;
+export type User = Selectable<Users> & {
+  is2faEnabled: boolean;
+  twofaSecret: string | null;
+  twofaMethod: string | null;
+  twofaBackupCodes: any | null;
+};
 export type InsertableUser = Insertable<Users>;
 export type UpdatableUser = Updateable<Omit<Users, 'id'>>;
 

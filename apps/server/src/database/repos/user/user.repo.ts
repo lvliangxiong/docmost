@@ -33,6 +33,10 @@ export class UserRepo {
     'createdAt',
     'updatedAt',
     'deletedAt',
+    'is2faEnabled',
+    'twofaSecret',
+    'twofaMethod',
+    'twofaBackupCodes',
   ];
 
   async findById(

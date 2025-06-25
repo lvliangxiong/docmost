@@ -29,6 +29,7 @@ import { InjectKysely } from 'nestjs-kysely';
 import { executeTx } from '@docmost/db/utils';
 import { VerifyUserTokenDto } from '../dto/verify-user-token.dto';
 import { DomainService } from '../../../integrations/environment/domain.service';
+import { EnvironmentService } from '../../../integrations/environment/environment.service';
 
 @Injectable()
 export class AuthService {
@@ -39,6 +40,7 @@ export class AuthService {
     private userTokenRepo: UserTokenRepo,
     private mailService: MailService,
     private domainService: DomainService,
+    private environmentService: EnvironmentService,
     @InjectKysely() private readonly db: KyselyDB,
   ) {}
 
@@ -59,6 +61,42 @@ export class AuthService {
 
     if (!isPasswordMatch) {
       throw new UnauthorizedException(errorMessage);
+    }
+
+    // Check if 2FA is enabled for this user
+    if (user.is2faEnabled) {
+      // Return a special response indicating 2FA is required
+      // The frontend should then call the 2FA verify endpoint
+      return {
+        requires2FA: true,
+        userId: user.id,
+        message: '2FA code required',
+      };
+    }
+
+    user.lastLoginAt = new Date();
+    await this.userRepo.updateLastLogin(user.id, workspaceId);
+
+    return this.tokenService.generateAccessToken(user);
+  }
+
+  async loginWith2FA(userId: string, workspaceId: string, twoFAToken: string) {
+    const user = await this.userRepo.findById(userId, workspaceId, {
+      includePassword: true,
+    });
+
+    if (!user || user?.deletedAt) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.is2faEnabled) {
+      throw new UnauthorizedException('2FA not enabled for this user');
+    }
+
+    // Verify 2FA token
+    const isValid2FA = await this.verify2FAToken(userId, workspaceId, twoFAToken);
+    if (!isValid2FA) {
+      throw new UnauthorizedException('Invalid 2FA code');
     }
 
     user.lastLoginAt = new Date();
@@ -228,5 +266,56 @@ export class AuthService {
       workspaceId,
     );
     return { token };
+  }
+
+  async enable2FA(userId: string, workspaceId: string, secret: string) {
+    await this.userRepo.updateUser({
+      is2faEnabled: true,
+      twofaSecret: secret,
+      twofaMethod: 'totp',
+    }, userId, workspaceId);
+  }
+
+  async disable2FA(userId: string, workspaceId: string) {
+    await this.userRepo.updateUser({
+      is2faEnabled: false,
+      twofaSecret: null,
+      twofaMethod: null,
+    }, userId, workspaceId);
+  }
+
+  async is2FAAvailable(workspace: Workspace): Promise<boolean> {
+    if (this.environmentService.isCloud()) {
+      return true; // Available in cloud
+    }
+    
+    // For self-hosted, check if it's a valid EE license
+    try {
+      const { LicenseService } = await import('@docmost/ee/licence/license.service');
+      const licenseService = new LicenseService();
+      return licenseService.isValidEELicense(workspace.licenseKey);
+    } catch {
+      return false; // EE module not available
+    }
+  }
+
+  async verify2FAToken(userId: string, workspaceId: string, token: string): Promise<boolean> {
+    try {
+      const { TwoFactorAuthService } = await import('@docmost/ee/2fa/2fa.service');
+      const twoFactorAuthService = new TwoFactorAuthService();
+      
+      const user = await this.userRepo.findById(userId, workspaceId);
+      if (!user?.twofaSecret) {
+        return false;
+      }
+      
+      return twoFactorAuthService.verifyToken(user.twofaSecret, token);
+    } catch {
+      return false; // 2FA not available
+    }
+  }
+
+  async getUserById(userId: string, workspaceId: string) {
+    return this.userRepo.findById(userId, workspaceId);
   }
 }
