@@ -19,6 +19,10 @@ import * as cookie from 'cookie';
 export class WsGateway implements OnGatewayConnection, OnModuleDestroy {
   @WebSocketServer()
   server: Server;
+  
+  // Map to track which sockets belong to which users
+  private userSocketMap = new Map<string, Set<string>>();
+  
   constructor(
     private tokenService: TokenService,
     private spaceMemberRepo: SpaceMemberRepo,
@@ -26,7 +30,7 @@ export class WsGateway implements OnGatewayConnection, OnModuleDestroy {
 
   async handleConnection(client: Socket, ...args: any[]): Promise<void> {
     try {
-      const cookies = cookie.parse(client.handshake.headers.cookie);
+      const cookies = cookie.parse(client.handshake.headers.cookie || '');
       const token: JwtPayload = await this.tokenService.verifyJwt(
         cookies['authToken'],
         JwtType.ACCESS,
@@ -35,15 +39,38 @@ export class WsGateway implements OnGatewayConnection, OnModuleDestroy {
       const userId = token.sub;
       const workspaceId = token.workspaceId;
 
+      // Store user-socket mapping
+      if (!this.userSocketMap.has(userId)) {
+        this.userSocketMap.set(userId, new Set());
+      }
+      this.userSocketMap.get(userId)!.add(client.id);
+
+      // Store user info on socket for later use
+      (client as any).userId = userId;
+      (client as any).workspaceId = workspaceId;
+
       const userSpaceIds = await this.spaceMemberRepo.getUserSpaceIds(userId);
 
       const workspaceRoom = `workspace-${workspaceId}`;
+      const userRoom = `user-${userId}`;
       const spaceRooms = userSpaceIds.map((id) => this.getSpaceRoomName(id));
 
-      client.join([workspaceRoom, ...spaceRooms]);
+      client.join([workspaceRoom, userRoom, ...spaceRooms]);
     } catch (err) {
       client.emit('Unauthorized');
       client.disconnect();
+    }
+  }
+
+  handleDisconnect(client: Socket): void {
+    // Clean up user-socket mapping
+    const userId = (client as any).userId;
+    if (userId && this.userSocketMap.has(userId)) {
+      const userSockets = this.userSocketMap.get(userId)!;
+      userSockets.delete(client.id);
+      if (userSockets.size === 0) {
+        this.userSocketMap.delete(userId);
+      }
     }
   }
 
@@ -84,5 +111,36 @@ export class WsGateway implements OnGatewayConnection, OnModuleDestroy {
 
   getSpaceRoomName(spaceId: string): string {
     return `space-${spaceId}`;
+  }
+
+  /**
+   * Emit an event to a specific user
+   */
+  emitToUser(userId: string, event: string, data: any): void {
+    const userRoom = `user-${userId}`;
+    this.server.to(userRoom).emit(event, data);
+  }
+
+  /**
+   * Emit an event to a workspace
+   */
+  emitToWorkspace(workspaceId: string, event: string, data: any): void {
+    const workspaceRoom = `workspace-${workspaceId}`;
+    this.server.to(workspaceRoom).emit(event, data);
+  }
+
+  /**
+   * Emit an event to a space
+   */
+  emitToSpace(spaceId: string, event: string, data: any): void {
+    const spaceRoom = this.getSpaceRoomName(spaceId);
+    this.server.to(spaceRoom).emit(event, data);
+  }
+
+  /**
+   * Check if a user is currently connected
+   */
+  isUserConnected(userId: string): boolean {
+    return this.userSocketMap.has(userId) && this.userSocketMap.get(userId)!.size > 0;
   }
 }

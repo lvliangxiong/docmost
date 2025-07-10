@@ -62,6 +62,7 @@ export interface AuthProviders {
   deletedAt: Timestamp | null;
   id: Generated<string>;
   isEnabled: Generated<boolean>;
+  isGroupSyncEnabled: Generated<boolean>;
   name: string;
   oidcClientId: string | null;
   oidcClientSecret: string | null;
@@ -122,6 +123,7 @@ export interface Comments {
   pageId: string;
   parentCommentId: string | null;
   resolvedAt: Timestamp | null;
+  resolvedById: string | null;
   selection: string | null;
   type: string | null;
   workspaceId: string;
@@ -163,6 +165,78 @@ export interface GroupUsers {
   id: Generated<string>;
   updatedAt: Generated<Timestamp>;
   userId: string;
+}
+
+export interface NotificationAggregations {
+  actorIds: Generated<string[]>;
+  aggregationKey: string;
+  aggregationType: string;
+  createdAt: Generated<Timestamp>;
+  entityId: string;
+  entityType: string;
+  id: Generated<string>;
+  notificationIds: Generated<string[]>;
+  recipientId: string;
+  summaryData: Generated<Json>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface NotificationBatches {
+  batchKey: string;
+  batchType: string;
+  createdAt: Generated<Timestamp>;
+  firstNotificationId: string | null;
+  id: Generated<string>;
+  notificationCount: Generated<number>;
+  recipientId: string;
+  scheduledFor: Timestamp;
+  sentAt: Timestamp | null;
+  workspaceId: string;
+}
+
+export interface NotificationPreferences {
+  batchTypes: Generated<string[] | null>;
+  batchWindowMinutes: Generated<number | null>;
+  createdAt: Generated<Timestamp>;
+  digestTime: Generated<string | null>;
+  emailEnabled: Generated<boolean>;
+  emailFrequency: Generated<string>;
+  id: Generated<string>;
+  inAppEnabled: Generated<boolean>;
+  maxBatchSize: Generated<number | null>;
+  notificationSettings: Generated<Json>;
+  quietHoursEnabled: Generated<boolean | null>;
+  quietHoursEnd: Generated<string | null>;
+  quietHoursStart: Generated<string | null>;
+  timezone: Generated<string | null>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  weekendNotifications: Generated<boolean | null>;
+  workspaceId: string;
+}
+
+export interface Notifications {
+  actorId: string | null;
+  batchId: string | null;
+  context: Generated<Json>;
+  createdAt: Generated<Timestamp>;
+  deduplicationKey: string | null;
+  emailSentAt: Timestamp | null;
+  entityId: string;
+  entityType: string;
+  expiresAt: Timestamp | null;
+  groupCount: Generated<number | null>;
+  groupKey: string | null;
+  id: Generated<string>;
+  inAppDeliveredAt: Timestamp | null;
+  isBatched: Generated<boolean | null>;
+  priority: Generated<string>;
+  readAt: Timestamp | null;
+  recipientId: string;
+  status: Generated<string>;
+  type: string;
+  updatedAt: Generated<Timestamp>;
+  workspaceId: string;
 }
 
 export interface PageHistory {
@@ -324,6 +398,10 @@ export interface DB {
   fileTasks: FileTasks;
   groups: Groups;
   groupUsers: GroupUsers;
+  notificationAggregations: NotificationAggregations;
+  notificationBatches: NotificationBatches;
+  notificationPreferences: NotificationPreferences;
+  notifications: Notifications;
   pageHistory: PageHistory;
   pages: Pages;
   shares: Shares;

@@ -18,6 +18,10 @@ import {
   AuthAccounts,
   Shares,
   FileTasks,
+  Notifications,
+  NotificationPreferences,
+  NotificationBatches,
+  NotificationAggregations,
 } from './db';
 
 // Workspace
@@ -113,3 +117,23 @@ export type UpdatableShare = Updateable<Omit<Shares, 'id'>>;
 export type FileTask = Selectable<FileTasks>;
 export type InsertableFileTask = Insertable<FileTasks>;
 export type UpdatableFileTask = Updateable<Omit<FileTasks, 'id'>>;
+
+// Notification
+export type Notification = Selectable<Notifications>;
+export type InsertableNotification = Insertable<Notifications>;
+export type UpdatableNotification = Updateable<Omit<Notifications, 'id'>>;
+
+// NotificationPreference
+export type NotificationPreference = Selectable<NotificationPreferences>;
+export type InsertableNotificationPreference = Insertable<NotificationPreferences>;
+export type UpdatableNotificationPreference = Updateable<Omit<NotificationPreferences, 'id'>>;
+
+// NotificationBatch
+export type NotificationBatch = Selectable<NotificationBatches>;
+export type InsertableNotificationBatch = Insertable<NotificationBatches>;
+export type UpdatableNotificationBatch = Updateable<Omit<NotificationBatches, 'id'>>;
+
+// NotificationAggregation
+export type NotificationAggregation = Selectable<NotificationAggregations>;
+export type InsertableNotificationAggregation = Insertable<NotificationAggregations>;
+export type UpdatableNotificationAggregation = Updateable<Omit<NotificationAggregations, 'id'>>;
