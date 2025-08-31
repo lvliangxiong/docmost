@@ -21,11 +21,11 @@ export type HeadingLink = {
 const recalculateLinks = (nodePos: NodePos[]) => {
   const nodes: HTMLElement[] = [];
 
-  const links: HeadingLink[] = Array.from(nodePos).reduce<HeadingLink[]>(
+  let links: HeadingLink[] = Array.from(nodePos).reduce<HeadingLink[]>(
     (acc, item) => {
       const label = item.node.textContent;
-      const level = Number(item.node.attrs.level);
-      if (label.length && level <= 3) {
+      const level = Number(item.node.attrs.level)-1;
+      if (label.length && level <= 6) {
         acc.push({
           label,
           level,
@@ -39,6 +39,12 @@ const recalculateLinks = (nodePos: NodePos[]) => {
     },
     [],
   );
+
+  const maxLevel = Math.min(...links.map(link => link.level));
+  if (maxLevel >= 1) {
+    links = links.map(link => ({ ...link, level: link.level - maxLevel}));
+  }
+
   return { links, nodes };
 };
 
